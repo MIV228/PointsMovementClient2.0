@@ -16,53 +16,65 @@ import java.util.*
 import javax.swing.JFrame
 
 fun main() {
+    // создание и настройка окна
     val window = MainFrame()
     window.setSize(800,800)
     window.isVisible = true
 }
 
 class MainFrame : JFrame(){
-
+    // настройка websocket клиента
     val client = HttpClient(CIO){
         install(WebSockets)
     }
+    // состояние позиции игрока х и у
     val playerPosition : MutableStateFlow<Pair<Int,Int>> = MutableStateFlow(0 to 0)
     init {
         GlobalScope.launch(Dispatchers.IO) {
+            // подключение к сокету
             client.webSocket(host = "0.0.0.0", port = 8080) {
                 launch {
+                    // при обновлении положения мыши отправлять новое положение на сервер
                     playerPosition.collect {
                         outgoing.send(Frame.Text("${it.first},${it.second}"))
                     }
                 }
+                // когда с сервера приходят новые данные
                 for (data in incoming){
                     if (data is Frame.Text){
                         val positions = data.readText()
+                        // очищаем список
                         players.clear()
+                        // расшифровываем позиции игроков из строки и помещаем в общий список
+                        // 868,31;779,32;695,35 <- формат приходящих данных, х1,у1;х2,у2.....
                         players.addAll(positions.split(";").map { position ->
                             val pos = position.split(",")
                             pos.first().toInt() to pos.last().toInt()
                         })
                         println(positions)
+                        // вызов перерисовки
                         repaint()
                     }
                 }
             }
         }
+        // добавление слушателя для перемещения мыши по экрану
         addMouseMotionListener(object : MouseMotionListener {
             override fun mouseDragged(e: MouseEvent?) {
             }
 
             override fun mouseMoved(e: MouseEvent) {
+                // обновление значения позиции мыши
                 playerPosition.value = e.x to e.y
             }
-
         })
     }
-
+    // положение всех точек на плоскости
     val players = Collections.synchronizedList(mutableListOf<Pair<Int,Int>>())
     override fun paint(g: Graphics) {
+        // очистка ранее нарисованных фигур
         g.clearRect(0,0,800,800)
+        // рисование круга для каждого игрока
         players.forEach { player ->
             g.fillOval(player.first, player.second, 100, 100)
         }
