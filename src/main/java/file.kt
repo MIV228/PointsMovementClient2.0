@@ -21,7 +21,11 @@ fun main() {
     window.setSize(800,800)
     window.isVisible = true
 }
-
+class PlayFrame {
+    // подключение к бд
+    // запуск чтения с бд
+    // цикл отображение кругов по координатам? прочитаных из бд
+}
 class MainFrame : JFrame(){
     // настройка websocket клиента
     val client = HttpClient(CIO){
@@ -47,10 +51,7 @@ class MainFrame : JFrame(){
                         players.clear()
                         // расшифровываем позиции игроков из строки и помещаем в общий список
                         // 868,31;779,32;695,35 <- формат приходящих данных, х1,у1;х2,у2.....
-                        players.addAll(positions.split(";").map { position ->
-                            val pos = position.split(",")
-                            pos.first().toInt() to pos.last().toInt()
-                        })
+                        players.addAll(pairs(positions))
                         println(positions)
                         // вызов перерисовки
                         repaint()
@@ -69,11 +70,17 @@ class MainFrame : JFrame(){
             }
         })
     }
+
+    private fun pairs(positions: String): List<Pair<Int,Int>> = positions.split(";").map { position ->
+        val pos = position.split(",")
+        pos.first().toInt() to pos.last().toInt()
+    }
+
     // положение всех точек на плоскости
     val players = Collections.synchronizedList(mutableListOf<Pair<Int,Int>>())
     override fun paint(g: Graphics) {
         // очистка ранее нарисованных фигур
-        g.clearRect(0,0,800,800)
+        g.clearRect(0,0,width, height)
         // рисование круга для каждого игрока
         players.forEach { player ->
             g.fillOval(player.first, player.second, 100, 100)
