@@ -6,6 +6,8 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionListener
 import javax.swing.JFrame
 import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class PlayFrame : JFrame() {
     var newPosition = 0.0 to 0.0
@@ -18,7 +20,7 @@ class PlayFrame : JFrame() {
             println(value)
             field = value
         }
-    var speed = 0.5 //0.05f
+    var speed = 0.4  //0.05f
 
     init {
         addMouseMotionListener(object : MouseMotionListener {
@@ -27,20 +29,31 @@ class PlayFrame : JFrame() {
                 newPosition = e.x.toDouble() to e.y.toDouble()
             }
         })
+        var lastClear1 = System.currentTimeMillis()
+
         GlobalScope.launch {
             while (true){
                 yield()
-                if (abs(position.first - newPosition.first) > 3.0 ||
-                    abs(position.second - newPosition.second) > 3.0){
+                val a = System.currentTimeMillis() - lastClear1
+                    lastClear1 = System.currentTimeMillis()
+                    if (abs(position.first - newPosition.first) > 3.0 ||
+                        abs(position.second - newPosition.second) > 3.0
+                    ) {
 
-                    val sx = (newPosition.first - position.first)
-                    val sy = (newPosition.second - position.second)
-                    val dx = sx / speed * 0.03
-                    val dy = sy / speed * 0.03
-                    position = position.first + dx to position.second + dy
-                    updateCoord(
-                        position
-                    )
+                        val sx = (newPosition.first.toInt() - position.first.toInt()).coerceIn(-1..1)
+                        val sy = (newPosition.second.toInt()  - position.second.toInt() ).coerceIn(-1..1)
+                        val xLength = abs(newPosition.first- position.first)
+                        val yLength = abs(newPosition.second  - position.second)
+                        val C = sqrt(xLength.pow(2) + yLength.pow(2))
+                        val cos = yLength / C
+                        val sin = xLength / C
+                        val dx =  a * speed * sx * sin
+                        val dy =  a * speed * sy * cos
+                        position = position.first + dx to position.second + dy
+                        updateCoord(
+                            position
+                        )
+
                 }
             }
         }
