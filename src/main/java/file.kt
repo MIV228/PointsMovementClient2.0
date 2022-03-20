@@ -21,11 +21,7 @@ fun main() {
     window.setSize(800,800)
     window.isVisible = true
 }
-class PlayFrame {
-    // подключение к бд
-    // запуск чтения с бд
-    // цикл отображение кругов по координатам? прочитаных из бд
-}
+
 class MainFrame : JFrame(){
     // настройка websocket клиента
     val client = HttpClient(CIO){
