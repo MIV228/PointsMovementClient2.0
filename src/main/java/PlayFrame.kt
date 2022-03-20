@@ -11,15 +11,8 @@ import kotlin.math.sqrt
 
 class PlayFrame : JFrame() {
     var newPosition = 0.0 to 0.0
-        set(value) {
-            println(value)
-            field = value
-        }
     var position = 0.0 to 0.0
-        set(value) {
-            println(value)
-            field = value
-        }
+
     var speed = 0.4  //0.05f
 
     init {
@@ -29,6 +22,7 @@ class PlayFrame : JFrame() {
                 newPosition = e.x.toDouble() to e.y.toDouble()
             }
         })
+
         var lastClear1 = System.currentTimeMillis()
 
         GlobalScope.launch {
@@ -39,21 +33,17 @@ class PlayFrame : JFrame() {
                     if (abs(position.first - newPosition.first) > 3.0 ||
                         abs(position.second - newPosition.second) > 3.0
                     ) {
-
-                        val sx = (newPosition.first.toInt() - position.first.toInt()).coerceIn(-1..1)
-                        val sy = (newPosition.second.toInt()  - position.second.toInt() ).coerceIn(-1..1)
-                        val xLength = abs(newPosition.first- position.first)
-                        val yLength = abs(newPosition.second  - position.second)
+                        val xLength = newPosition.first - position.first
+                        val yLength = newPosition.second - position.second
                         val C = sqrt(xLength.pow(2) + yLength.pow(2))
                         val cos = yLength / C
                         val sin = xLength / C
-                        val dx =  a * speed * sx * sin
-                        val dy =  a * speed * sy * cos
+                        val dx =  a * speed * sin
+                        val dy =  a * speed * cos
                         position = position.first + dx to position.second + dy
                         updateCoord(
                             position
                         )
-
                 }
             }
         }
