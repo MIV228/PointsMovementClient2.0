@@ -1,6 +1,7 @@
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
+import java.awt.Color
 import java.awt.Graphics
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionListener
@@ -57,17 +58,17 @@ class PlayFrame : JFrame() {
 
     override fun paint(g: Graphics) {
         if (System.currentTimeMillis() - lastClear > 17 ){
-           g.clearRect(0,0,800,800)
+           g.clearRect(0,0,3000,1080)
             lastClear = System.currentTimeMillis()
         }
-        g.fillOval(position.first.toInt() - 50, position.second.toInt() - 50, 100, 100)
+        g.color = Color.RED
+        g.fillOval(position.first.toInt() - 50, position.second.toInt() - 50, 20, 20)
     }
 
 }
 
-fun main() {
-
+fun newmain() {
     val j = PlayFrame()
-    j.setSize(800,700)
+    j.setSize(3000,1080)
     j.isVisible = true
 }

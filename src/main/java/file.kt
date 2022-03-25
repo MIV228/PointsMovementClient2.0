@@ -4,10 +4,12 @@ import io.ktor.client.features.websocket.*
 import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.awt.Color
 import java.awt.Graphics
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
@@ -17,9 +19,10 @@ import javax.swing.JFrame
 
 fun main() {
     // создание и настройка окна
-    val window = MainFrame()
-    window.setSize(800,800)
-    window.isVisible = true
+/*    val window = MainFrame()
+    window.setSize(3000,1080)
+    window.isVisible = true*/
+    newmain()
 }
 
 class MainFrame : JFrame(){
@@ -28,7 +31,7 @@ class MainFrame : JFrame(){
         install(WebSockets)
     }
     // состояние позиции игрока х и у
-    val playerPosition : MutableStateFlow<Pair<Int,Int>> = MutableStateFlow(0 to 0)
+    val playerPosition : MutableStateFlow<Pair<Double,Double>> = MutableStateFlow(0.0 to 0.0)
     init {
         GlobalScope.launch(Dispatchers.IO) {
             // подключение к сокету
@@ -50,7 +53,6 @@ class MainFrame : JFrame(){
                         players.addAll(pairs(positions))
                         println(positions)
                         // вызов перерисовки
-                        repaint()
                     }
                 }
             }
@@ -62,24 +64,26 @@ class MainFrame : JFrame(){
 
             override fun mouseMoved(e: MouseEvent) {
                 // обновление значения позиции мыши
-                playerPosition.value = e.x to e.y
+                playerPosition.value = e.x.toDouble() to e.y.toDouble()
             }
         })
+
     }
 
-    private fun pairs(positions: String): List<Pair<Int,Int>> = positions.split(";").map { position ->
+    private fun pairs(positions: String): List<Pair<Double,Double>> = positions.split(";").map { position ->
         val pos = position.split(",")
-        pos.first().toInt() to pos.last().toInt()
+        pos.first().toDouble() to pos.last().toDouble()
     }
 
     // положение всех точек на плоскости
-    val players = Collections.synchronizedList(mutableListOf<Pair<Int,Int>>())
+    val players = Collections.synchronizedList(mutableListOf<Pair<Double,Double>>())
     override fun paint(g: Graphics) {
         // очистка ранее нарисованных фигур
-        g.clearRect(0,0,width, height)
+//        g.clearRect(0,0,width, height)
         // рисование круга для каждого игрока
-        players.forEach { player ->
-            g.fillOval(player.first, player.second, 100, 100)
-        }
+//        g.color = Color.RED
+//        players.forEach { player ->
+//            g.fillOval(player.first, player.second, 100, 100)
+//        }
     }
 }
